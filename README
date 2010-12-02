@@ -1,0 +1,5 @@
+Prereqs:
+bundle install gems
+
+To run:
+./parser
