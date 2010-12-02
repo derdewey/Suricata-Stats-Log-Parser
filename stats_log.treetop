@@ -1,0 +1,68 @@
+grammar StatsLog
+  rule entry
+    header values:(!header value_line)+
+    {
+      def process
+        hash = header.process
+        hash[:values] =
+          values.elements.inject([]) do |arr,entry|
+            arr.push(entry.value_line.process)
+            arr
+          end
+        hash
+      end
+    }
+  end
+  rule header
+    dash_line
+    date_line
+    dash_line
+    table_header
+    dash_line
+    {
+      def process
+        {:date => date_line.process}
+      end
+    }
+  end
+  rule value_line
+    cntr:(!sep .)+ sep mod:(!sep .)+ sep val:(!newline .)+ newline
+    {
+      def process
+        {:counter => cntr.text_value.strip, :module => mod.text_value.strip, :value => val.text_value.to_f}
+      end
+    }
+  end
+  rule value
+    (!sep [a-zA-Z0-9\. \t])+ {
+    def ast
+      puts "hey, I got a value! #{text_value}"
+    end
+    }
+  end
+  rule date_line
+   date:(!" " .)+ " -- " time:(!"\n" .)+ "\n" {
+     def process
+       (time.text_value + " " + date.text_value)
+     end
+   }
+  end
+
+  ###############################################
+  # Junk that is never used
+  rule table_header
+    "Counter                   | TM Name                   | Value\n"
+  end
+  rule sep
+    "|"
+  end
+  rule space
+    [ \t]
+  end
+  rule dash_line
+   "-------------------------------------------------------------------\n"
+  end
+  rule newline
+    [\n]
+  end
+end
