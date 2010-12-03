@@ -29,7 +29,7 @@ grammar StatsLog
     cntr:(!sep .)+ sep mod:(!sep .)+ sep val:(!newline .)+ newline
     {
       def process
-        {:counter => cntr.text_value.strip, :module => mod.text_value.strip, :value => val.text_value.to_f}
+        {:name => cntr.text_value.strip, :module => mod.text_value.strip, :value => val.text_value.to_f}
       end
     }
   end
@@ -43,7 +43,8 @@ grammar StatsLog
   rule date_line
    date:(!" " .)+ " -- " time:(!"\n" .)+ "\n" {
      def process
-       (time.text_value + " " + date.text_value)
+       fmt = '%m/%d/%Y -- %H:%M:%S'
+       DateTime.strptime(text_value,fmt)
      end
    }
   end
